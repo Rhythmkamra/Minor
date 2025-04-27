@@ -1,7 +1,7 @@
 import { View, Text, Image } from 'react-native';
 import React, { useEffect, useContext, useState } from 'react';
 import { CreateTripContext } from '../../context/CreateTripContext';
-import { AI_PROMPT } from '../../constants/Options';
+import { AI_PROMPT, AI_MOODBOARD_PROMPT } from '../../constants/Options';
 import { chatSession } from '../../configs/AiModal';
 import { useRouter } from 'expo-router';
 import { setDoc, doc } from 'firebase/firestore';
@@ -12,10 +12,13 @@ const GenerateTrip = () => {
   const router = useRouter();
   const user = auth.currentUser;
   const [loading, setLoading] = useState(true); // Added useState for loading
+  const [tripGenerated, setTripGenerated] = useState(false); // New state to track if trip is generated
 
   useEffect(() => {
-    GenerateAItrip();
-  }, [tripData]);
+    if (!tripGenerated) {
+      GenerateAItrip();
+    }
+  }, [tripData, tripGenerated]);
 
   const GenerateAItrip = async () => {
     if (!tripData) {
@@ -25,31 +28,59 @@ const GenerateTrip = () => {
 
     console.log("tripData:", tripData);
 
-    const FINAL_PROMPT = AI_PROMPT
-      .replace('{location}', tripData.location || "Unknown Location")
-      .replace('{totalDays}', tripData.totalNumOfDays?.toString() || "0")
-      .replace('{totalNight}', ((tripData.totalNumOfDays || 1) - 1).toString())
-      .replace('{traveler}', tripData.traveler || "Unknown Traveler")
-      .replace('{budget}', tripData.budget || "Unknown Budget");
+    // Validate required fields, provide default if necessary
+    const location = tripData.location || "Unknown Location";
+    const traveler = tripData.traveler || "Unknown Traveler";
+    const budget = tripData.budget || "Unknown Budget";
+    const totalNumOfDays = tripData.totalNumOfDays || 0;
+
+    // Prevent negative nights
+    const totalNight = totalNumOfDays > 0 ? totalNumOfDays - 1 : 0;
+
+    // Ensure we are passing the correct prompt based on moodboard
+    let FINAL_PROMPT = '';
+
+    if (tripData?.moodboard) {
+      FINAL_PROMPT = AI_MOODBOARD_PROMPT
+        .replace('{location}', location)
+        .replace('{totalDay}', totalNumOfDays.toString())
+        .replace('{totalNight}', totalNight.toString())
+        .replace('{budget}', budget)
+        .replace('{travelerCount}', traveler)
+        .replace('{mood}', tripData.moodboard || "Relaxation");
+    } else {
+      FINAL_PROMPT = AI_PROMPT
+        .replace('{location}', location)
+        .replace('{totalDays}', totalNumOfDays.toString())
+        .replace('{totalNight}', totalNight.toString())
+        .replace('{traveler}', traveler)
+        .replace('{budget}', budget);
+    }
 
     console.log("FINAL_PROMPT:", FINAL_PROMPT);
 
     try {
       const result = await chatSession.sendMessage(FINAL_PROMPT);
-      const responseText = await result.response.text(); // Ensure async handling
+      const responseText = await result.response.text();
       const tripResponse = JSON.parse(responseText);
 
       console.log("AI Response:", tripResponse);
       setLoading(false);
+      setTripGenerated(true); // Set trip as generated
 
+      // Save trip data to Firebase after generating the trip
       const docId = Date.now().toString();
       await setDoc(doc(db, 'UserTrip', docId), {
         userEmail: user?.email || "Unknown",
         tripPlan: tripResponse,
-        tripData: tripData, // Removed JSON.stringify
+        tripData: tripData, // Save original tripData as well
         docId: docId,
       });
 
+      // After successful save, reset tripData and redirect the user
+      setTripData(null);  // Reset tripData after everything is saved and user is redirected
+
+      // Redirect user to their generated trip page
       router.push('(tabs)/mytrip');
     } catch (error) {
       console.error("Error generating AI trip:", error);

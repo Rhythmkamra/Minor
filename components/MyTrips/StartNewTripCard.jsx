@@ -10,7 +10,7 @@ export default function StartNewTripCard() {
     
     <View style={{
         backgroundColor:Colors.WHITE,
-    marginTop: 50,
+    marginTop: 40,
     padding:20,
     display:'flex',
     alignItems:'center',

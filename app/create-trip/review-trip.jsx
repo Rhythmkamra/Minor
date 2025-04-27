@@ -38,6 +38,14 @@ const ReviewTrip = () => {
         <Text style={styles.value}>{tripData?.budget || "Not Selected"}</Text>
       </View>
 
+      {/* Conditionally show Moodboard only if selected */}
+      {tripData?.moodboard && (
+        <View style={styles.infoBox}>
+          <Text style={styles.label}>🎨 Moodboard</Text>
+          <Text style={styles.value}>{tripData.moodboard}</Text>
+        </View>
+      )}
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => router.push('/create-trip/generate-trip')}

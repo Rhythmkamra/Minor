@@ -21,17 +21,6 @@ export default function SearchPlace() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-  // Combined predefined and additional locations (Most Visited Countries)
-  const locations = [
-    { name: "France", lat: 48.8566, lon: 2.3522 },
-    { name: "Spain", lat: 40.4168, lon: -3.7038 },
-    { name: "Italy", lat: 41.9028, lon: 12.4964 },
-    { name: "India", lat: 28.6139, lon: 77.2090 },
-    { name: "Switzerland", lat: 46.8182, lon: 8.2275 },
-    { name: "Turkey", lat: 41.0082, lon: 28.9784 },
-  ];
-
-  // Fetch locations from OpenStreetMap API
   const handleSearch = async (text) => {
     setSearchQuery(text);
     if (!text) {
@@ -59,6 +48,16 @@ export default function SearchPlace() {
       console.error("Error fetching places:", error);
     }
   };
+
+  // Predefined locations (Most Visited Countries)
+  const locations = [
+    { name: "France", lat: 48.8566, lon: 2.3522 },
+    { name: "Spain", lat: 40.4168, lon: -3.7038 },
+    { name: "Italy", lat: 41.9028, lon: 12.4964 },
+    { name: "India", lat: 28.6139, lon: 77.2090 },
+    { name: "Switzerland", lat: 46.8182, lon: 8.2275 },
+    { name: "Turkey", lat: 41.0082, lon: 28.9784 },
+  ];
 
   // Handle location selection
   const handleSelectPlace = (place) => {
@@ -94,9 +93,9 @@ export default function SearchPlace() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-      <Text style={styles.heading}>Search Destination </Text>
+        <Text style={styles.heading}>Search Destination</Text>
 
-        {/* Search Input with Arrow */}
+        {/* Search Input with Back Button */}
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Text style={styles.arrow}>←</Text>
@@ -108,29 +107,10 @@ export default function SearchPlace() {
             value={searchQuery}
             onChangeText={handleSearch}
           />
-          
-        </View>
-        <Text style={{
-          fontFamily:'outfit-bold',
-          fontSize:25,
-          textAlign:'center',
-          marginTop:15,
-        }}>Most Visited Countries</Text>
-        {/* Countries - Vertical Stack */}
-        <View style={styles.predefinedContainer}>
-          {locations.map((location, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.predefinedBox}
-              onPress={() => handlePredefinedLocation(location)}
-            >
-              <Text style={styles.predefinedText}>{location.name}</Text>
-            </TouchableOpacity>
-          ))}
         </View>
 
-        {/* Autocomplete Suggestions */}
-        {searchResults.length > 0 && (
+        {/* Show search results first if available */}
+        {searchResults.length > 0 ? (
           <FlatList
             data={searchResults}
             keyExtractor={(item) => item.place_id.toString()}
@@ -141,6 +121,22 @@ export default function SearchPlace() {
             )}
             style={styles.resultsContainer}
           />
+        ) : (
+          // Show predefined locations when no search results
+          <>
+            <Text style={styles.sectionTitle}>Most Visited Countries</Text>
+            <View style={styles.predefinedContainer}>
+              {locations.map((location, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.predefinedBox}
+                  onPress={() => handlePredefinedLocation(location)}
+                >
+                  <Text style={styles.predefinedText}>{location.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
         )}
       </View>
     </TouchableWithoutFeedback>
@@ -151,10 +147,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white", padding: 20 },
   heading: {
     fontSize: 25,
-    // fontWeight: "bold",
     textAlign: "center",
     marginBottom: 15,
-    fontFamily: "outfit-bold", 
+    fontFamily: "outfit-bold",
   },
   searchContainer: {
     flexDirection: "row",
@@ -182,8 +177,29 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
+  resultsContainer: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    maxHeight: 250, // Limit height to avoid pushing content too far down
+  },
+  resultItem: {
+    padding: 10,
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+  },
+  sectionTitle: {
+    fontFamily: "outfit-bold",
+    fontSize: 25,
+    textAlign: "center",
+    marginTop: 15,
+  },
   predefinedContainer: {
-    flexDirection: "column",  // Ensure vertical layout
+    flexDirection: "column",
     marginBottom: 15,
   },
   predefinedBox: {
@@ -193,27 +209,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10, // Adds space between boxes
-    marginTop:20,
+    marginBottom: 10,
+    marginTop: 20,
   },
   predefinedText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
-    fontFamily: "Outfit-Bold", // Use Outfit-Bold font
-  },
-  resultsContainer: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    marginTop: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  resultItem: {
-    padding: 10,
-    borderBottomColor: "#ccc",
-    borderBottomWidth: 1,
+    fontFamily: "Outfit-Bold",
   },
 });
+
