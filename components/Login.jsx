@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View,Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { Colors } from '/home/rhythm/Documents/minor/safar/constants/Colors.ts'
+import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 
 const Login = () => {

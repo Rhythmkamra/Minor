@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View, TouchableOpacity, ToastAndroid } from 'react-native';
 import React from 'react';
 import { TextInput } from 'react-native';
-import { Colors } from '/home/rhythm/Documents/minor/safar/constants/Colors.ts';
+import { Colors } from '../../../constants/Colors';
 import { useRouter } from 'expo-router';
-import { auth } from '../../../configs/FirebaseConfigs';
+import { auth, db } from '../../../configs/FirebaseConfigs'; // ✅ updated
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore'; // ✅ added Firestore functions
 
 const Signup = () => {
   const [email, setEmail] = React.useState('');
@@ -12,22 +13,34 @@ const Signup = () => {
   const [fullName, setFullName] = React.useState('');
   const router = useRouter();
 
-  const OnCreateAccount = () => {
-    if (!email || !password || !fullName) { 
+  const OnCreateAccount = async () => {
+    if (!email || !password || !fullName) {
       ToastAndroid.show('Please fill all the fields', ToastAndroid.SHORT);
       return;
     }
-  
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        console.log('User Created:', userCredential.user);
-        router.replace('/mytrip');
-      })
-      .catch((error) => {
-        console.log(error.code, error.message);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // ✅ Save additional user data into Firestore
+      await setDoc(doc(db, "Users", user.uid), {
+        username: fullName,
+        email: user.email,
+        profilePicture: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // default pic
+        bio: "Traveler exploring the world!",
+        settings: {
+          darkMode: false,
+          notificationsEnabled: true,
+        },
+        createdAt: new Date(),
       });
-      
+
+      console.log('User Created and Data Saved:', user.uid);
+      router.replace('/mytrip');
+    } catch (error) {
+      console.log(error.code, error.message);
+    }
   };
 
   return (
@@ -50,7 +63,7 @@ const Signup = () => {
         <TextInput 
           style={styles.input} 
           placeholder='Enter Full Name' 
-          onChangeText={setFullName} // ✅ Fixed state update
+          onChangeText={setFullName}
         />
       </View>
 
@@ -59,7 +72,7 @@ const Signup = () => {
         <TextInput 
           style={styles.input}  
           placeholder='Enter Email' 
-          onChangeText={setEmail} // ✅ Fixed state update
+          onChangeText={setEmail}
         />
       </View>
 
@@ -69,7 +82,7 @@ const Signup = () => {
           style={styles.input}  
           placeholder='Enter Password' 
           secureTextEntry={true} 
-          onChangeText={setPassword} // ✅ Fixed state update
+          onChangeText={setPassword}
         />
       </View>
 
