@@ -1,0 +1,132 @@
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+
+const Connections = () => {
+  const [connections, setConnections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchConnections = () => {
+      setTimeout(() => {
+        setConnections([
+          { id: '1', name: 'John Doe' },
+          { id: '2', name: 'Jane Smith' },
+          { id: '3', name: 'Alex Johnson' },
+          { id: '4', name: 'Emily Davis' },
+        ]);
+        setLoading(false);
+      }, 2000); // Simulate network delay
+    };
+
+    fetchConnections();
+  }, []);
+
+  const handlePress = (connection) => {
+    navigation.navigate('Chat', { connection });
+  };
+
+  const renderConnection = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
+      <View style={styles.cardContent}>
+        <FontAwesome5 name="user-circle" size={32} color="#687076" />
+        <Text style={styles.connectionName}>{item.name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#687076" />
+        <Text style={styles.loadingText}>Loading connections...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Your Connections</Text>
+      {connections.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <FontAwesome5 name="user-slash" size={48} color="#687076" />
+          <Text style={styles.emptyText}>No connections yet.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={connections}
+          keyExtractor={(item) => item.id}
+          renderItem={renderConnection}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    backgroundColor: '#F0F2F5',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 20,
+    color: '#2C3E50',
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    borderRadius: 15,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  connectionName: {
+    fontSize: 20,
+    marginLeft: 15,
+    color: '#2C3E50',
+    fontWeight: '600',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F0F2F5',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#687076',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    marginTop: 10,
+    fontSize: 18,
+    color: '#687076',
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+});
+
+export default Connections;

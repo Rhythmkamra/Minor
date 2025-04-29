@@ -14,7 +14,7 @@ const TabLayout = () => {
           tabBarLabel: 'My Trip',
         }}/>
         
-        <Tabs.Screen name ="discover"
+        <Tabs.Screen name ="dashboard"
         options={{
           tabBarIcon: ({ color }) => <FontAwesome name="globe" size={24} color='pink' />,
           tabBarLabel: 'Discover',
