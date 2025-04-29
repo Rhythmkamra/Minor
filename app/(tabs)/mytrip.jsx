@@ -1,12 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import React, { useState } from 'react';
 import { Colors } from './../../constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import StartNewTripCard from './../../components/MyTrips/StartNewTripCard';
-import StartMoodboardTripCard from './../../components/MyTrips/StartMoodboardTripCard'; // Import the new component
+import StartMoodboardTripCard from './../../components/MyTrips/StartMoodboardTripCard';
+import { useRouter } from 'expo-router'; // 🆕 import router
 
 const Mytrip = () => {
   const [userTrips, setUserTrips] = useState([]);
+  const router = useRouter(); // 🆕 initialize router
 
   return (
     <View style={styles.container}>
@@ -23,6 +25,14 @@ const Mytrip = () => {
         </>
       ) : null}
 
+      {/* 🆕 Chatbot Button */}
+      <View style={styles.chatbotButton}>
+        <Button
+          title="Chat with TravelBot"
+          onPress={() => router.push('/chatbot')}
+          color="#ff5c8d"
+        />
+      </View>
     </View>
   );
 };
@@ -37,7 +47,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   header: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -45,5 +54,8 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'outfit-bold',
     fontSize: 35,
+  },
+  chatbotButton: {
+    marginTop: 20,
   },
 });
