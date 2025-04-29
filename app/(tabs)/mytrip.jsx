@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Colors } from './../../constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,6 +10,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 const Mytrip = () => {
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showAddOptions, setShowAddOptions] = useState(false);
 
   const user = auth.currentUser;
 
@@ -43,28 +44,71 @@ const Mytrip = () => {
     setLoading(false);
   };
 
+  const handleAddTrip = () => {
+    setShowAddOptions(true);
+  };
+
+  const handleBackToTrips = () => {
+    setShowAddOptions(false);
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Trips</Text>
-        <Ionicons name="add" size={45} color="black" />
+        <TouchableOpacity onPress={showAddOptions ? handleBackToTrips : handleAddTrip}>
+          <Ionicons name={showAddOptions ? "arrow-back" : "add"} size={35} color="black" />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          {showAddOptions ? 'Add New' : 'My Trips'}
+        </Text>
+
+        {/* Invisible view to balance the header */}
+        <View style={{ width: 35 }} />
       </View>
 
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
-      ) : userTrips.length === 0 ? (
-        <>
-          <StartNewTripCard />
-          <StartMoodboardTripCard />
-        </>
       ) : (
-        userTrips.map((trip, index) => (
-          <View key={trip.id || index} style={styles.tripCard}>
-            <Text style={styles.tripName}>{trip.tripName || 'Unnamed Trip'}</Text>
-            <Text style={styles.tripDetails}>Destination: {trip.destination || 'Unknown'}</Text>
-            <Text style={styles.tripDetails}>Start Date: {trip.startDate || 'N/A'}</Text>
-          </View>
-        ))
+        <>
+          {showAddOptions ? (
+            <>
+              <StartNewTripCard />
+              <StartMoodboardTripCard />
+            </>
+          ) : (
+            <>
+              {userTrips.length === 0 ? (
+                <>
+                  <StartNewTripCard />
+                  <StartMoodboardTripCard />
+                </>
+              ) : (
+                userTrips.map((trip, index) => (
+                  <View key={trip.id || index} style={styles.tripCard}>
+                    {trip.tripData?.location && (
+                      <Text style={styles.tripName}>
+                       {trip.tripData?.location ? `${trip.tripData.location} Trip` : 'Unnamed Trip'}
+                      </Text>
+                    )}
+                    {trip.tripData?.startDate && (
+                      <Text style={styles.tripDetails}>Start Date: {trip.tripData.startDate}</Text>
+                    )}
+                    {trip.tripData?.endDate && (
+                      <Text style={styles.tripDetails}>End Date: {trip.tripData.endDate}</Text>
+                    )}
+                    {trip.tripData?.budget && (
+                      <Text style={styles.tripDetails}>Budget: {trip.tripData.budget}</Text>
+                    )}
+                    {trip.tripData?.traveler && (
+                      <Text style={styles.tripDetails}>Traveler: {trip.tripData.traveler}</Text>
+                    )}
+                  </View>
+                ))
+              )}
+            </>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -77,21 +121,23 @@ const styles = StyleSheet.create({
     padding: 25,
     paddingTop: 55,
     backgroundColor: Colors.WHITE,
-    height: '100%',
+    minHeight: '100%', // Changed from fixed height
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
   title: {
     fontFamily: 'outfit-bold',
-    fontSize: 35,
+    fontSize: 30,
+    textAlign: 'center',
   },
   loadingText: {
     fontSize: 18,
     textAlign: 'center',
-    marginTop: 50,
+    marginTop: 30,
   },
   tripCard: {
     backgroundColor: '#f5f5f5',

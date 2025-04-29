@@ -9,7 +9,7 @@ const Discover = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Discover</Text>
       <Button
-        title="Chat with TravelBot"
+        title="Chat with HUMsafar-the travel bot"
         onPress={() => router.push('/chatbot')}
         color="#ff5c8d"
       />
