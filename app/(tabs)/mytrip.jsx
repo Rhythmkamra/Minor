@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   tripCard: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'pink',
     padding: 20,
     borderRadius: 15,
     marginVertical: 10,
