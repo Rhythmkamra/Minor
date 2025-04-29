@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   predefinedBox: {
-    backgroundColor: "pink",
+    backgroundColor: "#f56c97",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,

@@ -37,7 +37,7 @@ export default function SelectDates() {
         [day.dateString]: {
           startingDay: true,
           endingDay: true,
-          color: 'pink',
+          color: '#f56c97',
           textColor: 'white',
         },
       });
@@ -49,7 +49,7 @@ export default function SelectDates() {
         let currentDate = moment(startDate);
         while (currentDate.isSameOrBefore(day.dateString)) {
           range[currentDate.format('YYYY-MM-DD')] = {
-            color: 'pink',
+            color: '#f56c97',
             textColor: 'white',
           };
           currentDate.add(1, 'day');
@@ -62,7 +62,7 @@ export default function SelectDates() {
           [day.dateString]: {
             startingDay: true,
             endingDay: true,
-            color: 'pink',
+            color: '#f56c97',
             textColor: 'white',
           },
         });
@@ -137,7 +137,7 @@ export default function SelectDates() {
         onPress={handleContinue}
         style={{
           marginTop: 30,
-          backgroundColor: 'pink',
+          backgroundColor: '#f56c97',
           padding: 15,
           borderRadius: 10,
           alignItems: 'center',

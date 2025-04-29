@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   tripCard: {
-    backgroundColor: 'pink',
+    backgroundColor:'#f56c97',
     padding: 20,
     borderRadius: 15,
     marginVertical: 10,
@@ -161,11 +161,12 @@ const styles = StyleSheet.create({
   tripName: {
     fontSize: 20,
     fontWeight: 'bold',
+    color:'white',
     marginBottom: 5,
   },
   tripDetails: {
     fontSize: 16,
-    color: '#555',
+    color: 'white',
   },
   chatBotContainer: {
     marginTop: 30,

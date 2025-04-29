@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -55,52 +55,54 @@ export default function SelectBudget() {
   };
 
   return (
-    <View style={{ padding: 20, marginTop: 40, backgroundColor: 'white', height: '100%' }}>
-      <Text style={{ fontSize: 30, fontFamily: 'outfit-bold' }}>Budget</Text>
-      <View style={{ marginTop: 30 }}>
-        <Text style={{ fontSize: 25, fontFamily: 'outfit-bold' }}>Choose Your Budget</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{ padding: 20, flex: 1 }}>
+        <Text style={{ fontSize: 30, fontFamily: 'outfit-bold' }}>Budget</Text>
+        <View style={{ marginTop: 30 }}>
+          <Text style={{ fontSize: 25, fontFamily: 'outfit-bold' }}>Choose Your Budget</Text>
+        </View>
+
+        <FlatList
+          data={selectBudgetOption}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectBudget(item)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 15,
+                marginVertical: 10,
+                backgroundColor: selectedBudget === item.title ? '#f56c97' : 'white',
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: 'pink',
+              }}
+            >
+              <Text style={{ fontSize: 24, marginRight: 10 }}>{item.icon}</Text>
+              <View>
+                <Text style={{ fontSize: 18, fontFamily: 'outfit-bold', color: selectedBudget === item.title ? 'white' : 'black' }}>
+                  {item.title}
+                </Text>
+                <Text style={{ fontSize: 14, color: selectedBudget === item.title ? 'white' : 'grey' }}>{item.desc}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+
+        <TouchableOpacity
+          onPress={handleContinue}
+          style={{
+            marginBottom:50,
+          backgroundColor: '#f56c97',
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 18, fontFamily: 'outfit-bold' }}>Continue</Text>
+        </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={selectBudgetOption}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleSelectBudget(item)}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              padding: 15,
-              marginVertical: 10,
-              backgroundColor: selectedBudget === item.title ? 'pink' : 'white',
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: 'pink',
-            }}
-          >
-            <Text style={{ fontSize: 24, marginRight: 10 }}>{item.icon}</Text>
-            <View>
-              <Text style={{ fontSize: 18, fontFamily: 'outfit-bold', color: selectedBudget === item.title ? 'white' : 'black' }}>
-                {item.title}
-              </Text>
-              <Text style={{ fontSize: 14, color: selectedBudget === item.title ? 'white' : 'grey' }}>{item.desc}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-
-      <TouchableOpacity
-        onPress={handleContinue}
-        style={{
-          marginTop: 30,
-          backgroundColor: 'pink',
-          padding: 15,
-          borderRadius: 10,
-          alignItems: 'center',
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 18, fontFamily: 'outfit-bold' }}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }

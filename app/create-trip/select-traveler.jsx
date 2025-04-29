@@ -70,7 +70,7 @@ const SelectTraveler = () => {
       {/* ✅ Continue Button */}
       <TouchableOpacity
         style={{
-          backgroundColor: "pink", // Pink Color
+          backgroundColor: "#f56c97", // Pink Color
           padding: 15,
           borderRadius: 15,
           marginTop: 20,
