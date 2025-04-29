@@ -6,6 +6,7 @@ import StartNewTripCard from './../../components/MyTrips/StartNewTripCard';
 import StartMoodboardTripCard from './../../components/MyTrips/StartMoodboardTripCard';
 import { db, auth } from './../../configs/FirebaseConfigs';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useRouter } from 'expo-router';
 
 const Mytrip = () => {
   const [userTrips, setUserTrips] = useState([]);
@@ -13,6 +14,7 @@ const Mytrip = () => {
   const [showAddOptions, setShowAddOptions] = useState(false);
 
   const user = auth.currentUser;
+  const router = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -88,7 +90,7 @@ const Mytrip = () => {
                   <View key={trip.id || index} style={styles.tripCard}>
                     {trip.tripData?.location && (
                       <Text style={styles.tripName}>
-                       {trip.tripData?.location ? `${trip.tripData.location} Trip` : 'Unnamed Trip'}
+                        {trip.tripData.location} Trip
                       </Text>
                     )}
                     {trip.tripData?.startDate && (
@@ -110,6 +112,17 @@ const Mytrip = () => {
           )}
         </>
       )}
+
+      {/* Chatbot button - always visible */}
+      <View style={styles.chatBotContainer}>
+        <Text style={styles.helpText}>Need help?</Text>
+        <TouchableOpacity
+          onPress={() => router.push('/chatbot')}
+          style={styles.chatBotButton}
+        >
+          <Text style={styles.chatBotButtonText}>Chat with HUMsafar - the travel bot</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -121,7 +134,7 @@ const styles = StyleSheet.create({
     padding: 25,
     paddingTop: 55,
     backgroundColor: Colors.WHITE,
-    minHeight: '100%', // Changed from fixed height
+    minHeight: '100%',
   },
   header: {
     flexDirection: 'row',
@@ -153,5 +166,26 @@ const styles = StyleSheet.create({
   tripDetails: {
     fontSize: 16,
     color: '#555',
+  },
+  chatBotContainer: {
+    marginTop: 30,
+    marginBottom: 40,
+    alignItems: 'center',
+  },
+  helpText: {
+    fontSize: 18,
+    fontFamily: 'outfit-bold',
+    marginBottom: 10,
+  },
+  chatBotButton: {
+    backgroundColor: '#ff5c8d',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  chatBotButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
