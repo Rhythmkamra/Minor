@@ -1,73 +1,96 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Dashboard = () => {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Let's Discover</Text>
+      <Text style={styles.title}>Welcome to Safar Community</Text>
+      <Text style={styles.subtitle}>Connect, explore and share your journey</Text>
 
-      <TouchableOpacity style={styles.card} onPress={() => router.push('/community/connections')}>
-        <View style={styles.cardContent}>
-          <Text style={styles.cardText}>My Connections</Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card} onPress={() => router.push('/community/groups')}>
-        <View style={styles.cardContent}>
-          <Text style={styles.cardText}>Travel Groups</Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card} onPress={() => router.push('/community/requests')}>
-        <View style={styles.cardContent}>
-          <Text style={styles.cardText}>Let's Connect</Text>
-        </View>
-      </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.cardContainer} showsVerticalScrollIndicator={false}>
+      <Card
+          title="Let's Connect"
+          icon="account-plus"
+          onPress={() => router.push('/community/requests')}
+        />
+        <Card
+          title="Travel Groups"
+          icon="account-group"
+          onPress={() => router.push('/community/groups')}
+        />
+        
+         <Card
+          title="My Connections"
+          icon="account-multiple"
+          onPress={() => router.push('/community/connections')}
+        />
+      </ScrollView>
     </View>
+  );
+};
+
+const Card = ({ title, icon, onPress }) => {
+  return (
+    <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={onPress}>
+      <Icon name={icon} size={30} color="#fff" style={styles.icon} />
+      <Text style={styles.cardText}>{title}</Text>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f7f7f7',
-    padding: 20,
+    backgroundColor: 'light grey',
+    paddingTop: 60,
+    paddingHorizontal: 20,
   },
-  heading: {
-    fontSize: 34,
+  title: {
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 40,
     color: '#687076',
     textAlign: 'center',
-    letterSpacing: 1,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#687076',
+    textAlign: 'center',
+    marginBottom: 30,
+    marginTop: 8,
+  },
+  cardContainer: {
+    alignItems: 'center',
+    paddingBottom: 40,
   },
   card: {
     backgroundColor: '#FFC0CB',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    marginVertical: 15,
     width: '90%',
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-    transform: [{ translateY: -5 }],
-  },
-  cardContent: {
-    justifyContent: 'center',
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    marginVertical: 15,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  cardPressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.95,
+  },
+  icon: {
+    marginBottom: 10,
   },
   cardText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '600',
     color: '#fff',
-    textAlign: 'center',
     letterSpacing: 0.5,
   },
 });

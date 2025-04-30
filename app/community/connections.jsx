@@ -84,8 +84,8 @@ const Connections = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingTop: 40, // Reduced padding at the top
+    paddingHorizontal: 10, // Reduced horizontal padding
     backgroundColor: '#F0F2F5',
   },
   title: {
@@ -97,23 +97,26 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderRadius: 15,
+    paddingVertical: 18, // Reduced padding for the card
+    paddingHorizontal: 12, // Reduced padding inside the card
+    marginBottom: 12, // Reduced margin between cards
+    borderRadius: 12, // Reduced border radius for a sleeker look
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    marginHorizontal: 5, // Prevents cards from touching the edges
+    width: '100%', // Ensures card width fits the screen
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%', // Ensures content doesn't overflow
   },
   connectionName: {
-    fontSize: 20,
-    marginLeft: 15,
+    fontSize: 18, // Slightly smaller font for connection name
+    marginLeft: 12, // Reduced margin
     color: '#2C3E50',
     fontWeight: '600',
   },
