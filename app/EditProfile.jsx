@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     fontFamily: 'outfit-regular',
   },
   saveButton: {
-    backgroundColor: Colors.PRIMARY,
+    backgroundColor: '#ff5c8d',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 10,

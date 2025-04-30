@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Colors } from './../../constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -12,6 +20,7 @@ const Mytrip = () => {
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
+  const [showChatIntro, setShowChatIntro] = useState(false);
 
   const user = auth.currentUser;
   const router = useRouter();
@@ -29,7 +38,6 @@ const Mytrip = () => {
         collection(db, 'UserTrip'),
         where('userEmail', '==', user.email)
       );
-
       const querySnapshot = await getDocs(q);
 
       const tripsArray = [];
@@ -37,93 +45,110 @@ const Mytrip = () => {
         tripsArray.push({ id: doc.id, ...doc.data() });
       });
 
-      console.log('Fetched Trips:', tripsArray);
       setUserTrips(tripsArray);
-
     } catch (error) {
       console.error('Error fetching trips:', error);
     }
     setLoading(false);
   };
 
-  const handleAddTrip = () => {
-    setShowAddOptions(true);
-  };
+  const handleAddTrip = () => setShowAddOptions(true);
+  const handleBackToTrips = () => setShowAddOptions(false);
 
-  const handleBackToTrips = () => {
-    setShowAddOptions(false);
+  const openChatbotIntro = () => setShowChatIntro(true);
+  const goToChatbot = () => {
+    setShowChatIntro(false);
+    router.push('/chatbot');
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={showAddOptions ? handleBackToTrips : handleAddTrip}>
-          <Ionicons name={showAddOptions ? "arrow-back" : "add"} size={35} color="black" />
-        </TouchableOpacity>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={showAddOptions ? handleBackToTrips : handleAddTrip}>
+            <Ionicons name={showAddOptions ? "arrow-back" : "add"} size={35} color="black" />
+          </TouchableOpacity>
 
-        <Text style={styles.title}>
-          {showAddOptions ? 'Add New' : 'My Trips'}
-        </Text>
+          <Text style={styles.title}>
+            {showAddOptions ? 'Add New' : 'My Trips'}
+          </Text>
 
-        {/* Invisible view to balance the header */}
-        <View style={{ width: 35 }} />
-      </View>
+          <View style={{ width: 35 }} />
+        </View>
 
-      {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
-      ) : (
-        <>
-          {showAddOptions ? (
-            <>
-              <StartNewTripCard />
-              <StartMoodboardTripCard />
-            </>
-          ) : (
-            <>
-              {userTrips.length === 0 ? (
-                <>
-                  <StartNewTripCard />
-                  <StartMoodboardTripCard />
-                </>
-              ) : (
-                userTrips.map((trip, index) => (
-                  <View key={trip.id || index} style={styles.tripCard}>
-                    {trip.tripData?.location && (
-                      <Text style={styles.tripName}>
-                        {trip.tripData.location} Trip
-                      </Text>
-                    )}
-                    {trip.tripData?.startDate && (
-                      <Text style={styles.tripDetails}>Start Date: {trip.tripData.startDate}</Text>
-                    )}
-                    {trip.tripData?.endDate && (
-                      <Text style={styles.tripDetails}>End Date: {trip.tripData.endDate}</Text>
-                    )}
-                    {trip.tripData?.budget && (
-                      <Text style={styles.tripDetails}>Budget: {trip.tripData.budget}</Text>
-                    )}
-                    {trip.tripData?.traveler && (
-                      <Text style={styles.tripDetails}>Traveler: {trip.tripData.traveler}</Text>
-                    )}
-                  </View>
-                ))
-              )}
-            </>
-          )}
-        </>
-      )}
+        {loading ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : (
+          <>
+            {showAddOptions ? (
+              <>
+                <StartNewTripCard />
+                <StartMoodboardTripCard />
+              </>
+            ) : (
+              <>
+                {userTrips.length === 0 ? (
+                  <>
+                    <StartNewTripCard />
+                    <StartMoodboardTripCard />
+                  </>
+                ) : (
+                  userTrips.map((trip, index) => (
+                    <View key={trip.id || index} style={styles.tripCard}>
+                      {trip.tripData?.location && (
+                        <Text style={styles.tripName}>
+                          {trip.tripData.location} Trip
+                        </Text>
+                      )}
+                      {trip.tripData?.startDate && (
+                        <Text style={styles.tripDetails}>Start Date: {trip.tripData.startDate}</Text>
+                      )}
+                      {trip.tripData?.endDate && (
+                        <Text style={styles.tripDetails}>End Date: {trip.tripData.endDate}</Text>
+                      )}
+                      {trip.tripData?.budget && (
+                        <Text style={styles.tripDetails}>Budget: {trip.tripData.budget}</Text>
+                      )}
+                      {trip.tripData?.traveler && (
+                        <Text style={styles.tripDetails}>Traveler: {trip.tripData.traveler}</Text>
+                      )}
+                    </View>
+                  ))
+                )}
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
 
-      {/* Chatbot button - always visible */}
-      <View style={styles.chatBotContainer}>
-        <Text style={styles.helpText}>Need help?</Text>
-        <TouchableOpacity
-          onPress={() => router.push('/chatbot')}
-          style={styles.chatBotButton}
-        >
-          <Text style={styles.chatBotButtonText}>Chat with HUMsafar - the travel bot</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      {/* Floating Chatbot Button */}
+      <TouchableOpacity
+        onPress={openChatbotIntro}
+        style={styles.floatingButton}
+      >
+        <Ionicons name="chatbubble-ellipses" size={30} color="white" />
+      </TouchableOpacity>
+
+      {/* Modal for HUMsafar Chat Intro */}
+      <Modal
+        visible={showChatIntro}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowChatIntro(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Ionicons name="chatbubbles" size={40} color="#ff5c8d" />
+            <Text style={styles.modalTitle}>Chat with HUMsafar</Text>
+            <Text style={styles.modalText}>Your smart travel assistant 🤖</Text>
+
+            <Pressable style={styles.modalButton} onPress={goToChatbot}>
+              <Text style={styles.modalButtonText}>Continue</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -153,7 +178,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   tripCard: {
-    backgroundColor:'#f56c97',
+    backgroundColor: '#f56c97',
     padding: 20,
     borderRadius: 15,
     marginVertical: 10,
@@ -161,32 +186,61 @@ const styles = StyleSheet.create({
   tripName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color:'white',
+    color: 'white',
     marginBottom: 5,
   },
   tripDetails: {
     fontSize: 16,
     color: 'white',
   },
-  chatBotContainer: {
-    marginTop: 30,
-    marginBottom: 40,
+  floatingButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: '#ff5c8d',
+    padding: 15,
+    borderRadius: 50,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  helpText: {
-    fontSize: 18,
-    fontFamily: 'outfit-bold',
-    marginBottom: 10,
+  modalContent: {
+    backgroundColor: 'white',
+    width: '80%',
+    borderRadius: 20,
+    padding: 25,
+    alignItems: 'center',
   },
-  chatBotButton: {
-    backgroundColor: '#ff5c8d',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  chatBotButtonText: {
-    color: '#fff',
-    fontSize: 16,
+  modalTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
+    marginTop: 10,
+    color: '#333',
+  },
+  modalText: {
+    fontSize: 16,
+    marginTop: 5,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#666',
+  },
+  modalButton: {
+    backgroundColor: '#ff5c8d',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

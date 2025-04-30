@@ -2,27 +2,41 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator }
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { db } from '../../configs/FirebaseConfigs'; // Import Firestore
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const Connections = () => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
-    const fetchConnections = () => {
-      setTimeout(() => {
-        setConnections([
-          { id: '1', name: 'John Doe' },
-          { id: '2', name: 'Jane Smith' },
-          { id: '3', name: 'Alex Johnson' },
-          { id: '4', name: 'Emily Davis' },
-        ]);
+    const fetchConnections = async () => {
+      if (!currentUser) return;
+
+      try {
+        // Fetch the accepted requests for the current user
+        const acceptedRequestsRef = collection(db, 'Users', currentUser.uid, 'requests');
+        const querySnapshot = await getDocs(query(acceptedRequestsRef, where('status', '==', 'accepted')));
+        
+        const acceptedConnections = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        setConnections(acceptedConnections);
         setLoading(false);
-      }, 2000); // Simulate network delay
+      } catch (error) {
+        console.error("Error fetching connections:", error);
+        setLoading(false);
+      }
     };
 
     fetchConnections();
-  }, []);
+  }, [currentUser]);
 
   const handlePress = (connection) => {
     navigation.navigate('Chat', { connection });
@@ -32,7 +46,7 @@ const Connections = () => {
     <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
       <View style={styles.cardContent}>
         <FontAwesome5 name="user-circle" size={32} color="#687076" />
-        <Text style={styles.connectionName}>{item.name}</Text>
+        <Text style={styles.connectionName}>{item.fromName || 'Unknown User'}</Text>
       </View>
     </TouchableOpacity>
   );

@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: Colors.PRIMARY,
+    backgroundColor: "#ff5c8d",
     borderRadius: 10,
   },
   editButtonText: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.GRAY,
   },
   logoutButton: {
-    backgroundColor: Colors.PRIMARY,
+    backgroundColor: '#ff5c8d',
     margin: 20,
     paddingVertical: 12,
     borderRadius: 15,
