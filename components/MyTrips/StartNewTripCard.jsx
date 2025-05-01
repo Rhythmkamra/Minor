@@ -10,7 +10,7 @@ export default function StartNewTripCard() {
     
     <View style={{
         backgroundColor:Colors.WHITE,
-    marginTop: 40,
+    marginTop: -20,
     padding:20,
     display:'flex',
     alignItems:'center',
@@ -22,7 +22,7 @@ export default function StartNewTripCard() {
         fontFamily:'outfit-bold',
         fontSize: 20,
         color:Colors.black,
-        textAlign:'center'
+        textAlign:'center',
       }}>NO TRIPS PLANNED YET! </Text>
        <Text style={{
         fontFamily:'outfit-medium',
