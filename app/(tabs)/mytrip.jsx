@@ -4,6 +4,7 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Modal,
   Pressable,
 } from 'react-native';
@@ -18,9 +19,12 @@ import { useRouter } from 'expo-router';
 
 const Mytrip = () => {
   const [userTrips, setUserTrips] = useState([]);
+  const [filteredTrips, setFilteredTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showChatIntro, setShowChatIntro] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTrip, setSelectedTrip] = useState(null); // Store selected trip data
 
   const user = auth.currentUser;
   const router = useRouter();
@@ -30,6 +34,18 @@ const Mytrip = () => {
       fetchUserTrips();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredTrips(
+        userTrips.filter((trip) =>
+          trip.tripData?.location?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredTrips(userTrips);
+    }
+  }, [searchQuery, userTrips]);
 
   const fetchUserTrips = async () => {
     setLoading(true);
@@ -46,6 +62,7 @@ const Mytrip = () => {
       });
 
       setUserTrips(tripsArray);
+      setFilteredTrips(tripsArray);
     } catch (error) {
       console.error('Error fetching trips:', error);
     }
@@ -54,13 +71,17 @@ const Mytrip = () => {
 
   const handleAddTrip = () => setShowAddOptions(true);
   const handleBackToTrips = () => setShowAddOptions(false);
-
   const openChatbotIntro = () => setShowChatIntro(true);
   const goToChatbot = () => {
     setShowChatIntro(false);
     router.push('/chatbot');
   };
 
+  const handleTripClick = (trip) => {
+    setSelectedTrip(trip); // Store the entire trip data in state
+    router.push(`/tripdetails/${trip.id}`); // Navigate to the TripDetails page with trip id
+  };
+  
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -76,6 +97,13 @@ const Mytrip = () => {
           <View style={{ width: 35 }} />
         </View>
 
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search trips by location"
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
+
         {loading ? (
           <Text style={styles.loadingText}>Loading...</Text>
         ) : (
@@ -87,32 +115,22 @@ const Mytrip = () => {
               </>
             ) : (
               <>
-                {userTrips.length === 0 ? (
+                {filteredTrips.length === 0 ? (
                   <>
                     <StartNewTripCard />
                     <StartMoodboardTripCard />
                   </>
                 ) : (
-                  userTrips.map((trip, index) => (
-                    <View key={trip.id || index} style={styles.tripCard}>
-                      {trip.tripData?.location && (
-                        <Text style={styles.tripName}>
-                          {trip.tripData.location} Trip
-                        </Text>
-                      )}
-                      {trip.tripData?.startDate && (
-                        <Text style={styles.tripDetails}>Start Date: {trip.tripData.startDate}</Text>
-                      )}
-                      {trip.tripData?.endDate && (
-                        <Text style={styles.tripDetails}>End Date: {trip.tripData.endDate}</Text>
-                      )}
-                      {trip.tripData?.budget && (
-                        <Text style={styles.tripDetails}>Budget: {trip.tripData.budget}</Text>
-                      )}
-                      {trip.tripData?.traveler && (
-                        <Text style={styles.tripDetails}>Traveler: {trip.tripData.traveler}</Text>
-                      )}
-                    </View>
+                  filteredTrips.map((trip, index) => (
+                    <TouchableOpacity key={trip.id || index} onPress={() => handleTripClick(trip)}>
+                      <View style={styles.tripCard}>
+                        {trip.tripData?.location && (
+                          <Text style={styles.tripName}>
+                            {trip.tripData.location} Trip
+                          </Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
                   ))
                 )}
               </>
@@ -130,24 +148,25 @@ const Mytrip = () => {
       </TouchableOpacity>
 
       {/* Modal for HUMsafar Chat Intro */}
-      <Modal
-        visible={showChatIntro}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowChatIntro(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Ionicons name="chatbubbles" size={40} color="#ff5c8d" />
-            <Text style={styles.modalTitle}>Chat with HUMsafar</Text>
-            <Text style={styles.modalText}>Your smart travel assistant 🤖</Text>
+      {showChatIntro && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowChatIntro(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Ionicons name="chatbubbles" size={40} color="#ff5c8d" />
+              <Text style={styles.modalTitle}>Chat with HUMsafar</Text>
+              <Text style={styles.modalText}>Your smart travel assistant 🤖</Text>
 
-            <Pressable style={styles.modalButton} onPress={goToChatbot}>
-              <Text style={styles.modalButtonText}>Continue</Text>
-            </Pressable>
+              <Pressable style={styles.modalButton} onPress={goToChatbot}>
+                <Text style={styles.modalButtonText}>Continue</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -189,9 +208,13 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 5,
   },
-  tripDetails: {
-    fontSize: 16,
-    color: 'white',
+  searchBar: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
   floatingButton: {
     position: 'absolute',
@@ -208,29 +231,40 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
     width: '80%',
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 10,
-    color: '#333',
+    marginBottom: 10,
   },
   modalText: {
     fontSize: 16,
-    marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 5,
+  },
+  modalSubTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  closeButton: {
+    backgroundColor: Colors.primary,
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 15,
+  },
+  closeButtonText: {
+    color: 'white',
     textAlign: 'center',
-    color: '#666',
+    fontSize: 16,
   },
   modalButton: {
     backgroundColor: '#ff5c8d',
