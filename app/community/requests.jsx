@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, SectionList, TextInput, StyleSheet,
-  TouchableOpacity, ActivityIndicator, Alert, Image
+  TouchableOpacity, ActivityIndicator, Alert, Image, ScrollView
 } from 'react-native';
 import { db } from '../../configs/FirebaseConfigs';
 import {
@@ -12,7 +12,13 @@ import { getAuth } from 'firebase/auth';
 
 const RequestItem = ({ req, onAccept, onDecline }) => (
   <View style={styles.requestItem}>
-    <Text style={styles.requestName}>{req.fromName}</Text>
+    <View style={styles.requestHeader}>
+      <Image source={{ uri: req.profilePic }} style={styles.profilePic} />
+      <View style={{ marginLeft: 10 }}>
+        <Text style={styles.requestName}>{req.fromName}</Text>
+        <Text style={styles.requestBio}>{req.bio || 'No bio available'}</Text>
+      </View>
+    </View>
     <Text style={styles.timestamp}>
       {req.timestamp?.seconds ? new Date(req.timestamp.seconds * 1000).toLocaleString() : ''}
     </Text>
@@ -36,7 +42,7 @@ const Requests = () => {
   const [sentRequests, setSentRequests] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [suggestedUsers, setSuggestedUsers] = useState([]); // New state for suggested users
+  const [suggestedUsers, setSuggestedUsers] = useState([]);
 
   const auth = getAuth();
   const currentUser = auth.currentUser;
@@ -67,9 +73,6 @@ const Requests = () => {
       setSentRequests(sent);
     };
 
-    fetchSent();
-    
-    // Fetch suggested users
     const fetchSuggestedUsers = async () => {
       const usersSnapshot = await getDocs(collection(db, 'Users'));
       const suggestions = [];
@@ -78,10 +81,8 @@ const Requests = () => {
         const userData = userDoc.data();
         const userId = userDoc.id;
 
-        // Skip if it's the current user
         if (userId === currentUser.uid) continue;
 
-        // Skip if already requested
         const reqSnap = await getDocs(collection(db, 'Users', userId, 'requests'));
         const alreadyRequested = reqSnap.docs.some(doc => doc.data().fromUserId === currentUser.uid);
         if (alreadyRequested) continue;
@@ -90,13 +91,14 @@ const Requests = () => {
           id: userId,
           username: userData.username,
           bio: userData.bio || '',
-          photo: userData.photo || '',  // Assuming `photo` exists in user data
+          photo: userData.photo || '',
         });
       }
 
       setSuggestedUsers(suggestions);
     };
 
+    fetchSent();
     fetchSuggestedUsers();
 
     return () => unsubscribe();
@@ -184,10 +186,9 @@ const Requests = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Connection Requests</Text>
 
-      {/* Input Section */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Send a Connection Request</Text>
         <View style={styles.inputContainer}>
@@ -211,7 +212,6 @@ const Requests = () => {
         </View>
       </View>
 
-      {/* Requests */}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -227,7 +227,6 @@ const Requests = () => {
         )}
       />
 
-      {/* Sent Requests */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Sent Requests</Text>
         {sentRequests.length === 0 ? (
@@ -239,7 +238,6 @@ const Requests = () => {
         ))}
       </View>
 
-      {/* Suggested Profiles */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Suggested Profiles</Text>
         {suggestedUsers.length === 0 ? (
@@ -276,35 +274,132 @@ const Requests = () => {
           ))
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-
-  container: { flex: 1, padding: 20, backgroundColor: '#f4f4f4' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  sectionContainer: { marginBottom: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center' },
-  input: { flex: 1, padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 5 },
-  sendButton: { backgroundColor: '#00A0FF', padding: 10, borderRadius: 5, marginLeft: 10 },
-  sendButtonText: { color: '#fff', fontWeight: 'bold' },
-  noRequests: { color: '#777', fontStyle: 'italic' },
-  requestItem: { backgroundColor: '#fff', padding: 15, borderRadius: 5, marginBottom: 10, elevation: 2 },
-  requestName: { fontWeight: 'bold', fontSize: 16 },
-  timestamp: { fontSize: 12, color: '#777' },
-  acceptedText: { color: '#28a745', fontWeight: 'bold' },
-  buttonGroup: { flexDirection: 'row', marginTop: 10 },
-  acceptButton: { backgroundColor: '#28a745', padding: 8, borderRadius: 5, marginRight: 10 },
-  declineButton: { backgroundColor: '#dc3545', padding: 8, borderRadius: 5 },
-  acceptButtonText: { color: '#fff' },
-  declineButtonText: { color: '#fff' },
-  sentRequest: { fontSize: 16, color: '#333', marginVertical: 5 },
-  suggestionItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, backgroundColor: '#fff', padding: 10, borderRadius: 10, elevation: 3 },
-  profilePic: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#ccc' },
-  connectButton: { backgroundColor: '#FFC0CB', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 5 },
-
+  container: {
+    flex: 1,
+    padding: 15,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
+  sectionContainer: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  sendButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  sendButtonText: {
+    color: '#fff',
+  },
+  requestItem: {
+    padding: 10,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  requestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#ddd',
+  },
+  requestName: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  requestBio: {
+    color: '#777',
+  },
+  timestamp: {
+    fontSize: 12,
+    color: '#aaa',
+    marginTop: 5,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  acceptButton: {
+    backgroundColor: '#28a745',
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  declineButton: {
+    backgroundColor: '#dc3545',
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  acceptButtonText: {
+    color: '#fff',
+  },
+  declineButtonText: {
+    color: '#fff',
+  },
+  acceptedText: {
+    color: '#28a745',
+    fontWeight: 'bold',
+  },
+  sentRequest: {
+    fontSize: 14,
+    color: '#333',
+    marginVertical: 5,
+  },
+  noRequests: {
+    fontStyle: 'italic',
+    color: '#777',
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  connectButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
 });
 
 export default Requests;
