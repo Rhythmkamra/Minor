@@ -7,18 +7,65 @@ import {
   TextInput,
   Modal,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Colors } from '../../constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import UserTripsList from '../../components/MyTrips/UserTripList';
+import StartNewTripCard from '../../components/MyTrips/StartNewTripCard';
+import StartMoodboardTripCard from '../../components/MyTrips/StartMoodboardTripCard';
+import { db, auth } from '../../configs/FirebaseConfigs';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 
 const MyTrip = () => {
+  const [userTrips, setUserTrips] = useState([]);
+  const [filteredTrips, setFilteredTrips] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showChatIntro, setShowChatIntro] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
   const router = useRouter();
+  const user = auth.currentUser;
+  const userEmail = user?.email;
+
+  useEffect(() => {
+    if (user) fetchTrips();
+  }, [user]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = userTrips.filter((trip) =>
+        trip.tripData?.location?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredTrips(filtered);
+    } else {
+      setFilteredTrips(userTrips);
+    }
+  }, [searchQuery, userTrips]);
+
+  const fetchTrips = async () => {
+    setLoading(true);
+    setUserTrips([]);
+    try {
+      const q = query(collection(db, 'UserTrip'), where('userEmail', '==', userEmail));
+      const snapshot = await getDocs(q);
+
+      const tripsArray = [];
+      snapshot.forEach((doc) => {
+        const tripData = { id: doc.id, ...doc.data() };
+        console.log('Fetched Trip:', tripData);
+        tripsArray.push(tripData);
+      });
+
+      setUserTrips(tripsArray);
+      setFilteredTrips(tripsArray);
+    } catch (err) {
+      console.error('Error fetching trips:', err);
+    }
+    setLoading(false);
+  };
 
   const handleAddTrip = () => setShowAddOptions(true);
   const handleBackToTrips = () => setShowAddOptions(false);
@@ -26,6 +73,20 @@ const MyTrip = () => {
   const goToChatbot = () => {
     setShowChatIntro(false);
     router.push('/chatbot');
+  };
+
+  const handleTripClick = (trip) => {
+    console.log('Trip clicked:', trip);
+    router.push({
+      pathname: '/trip-details',
+      params: {
+        id: trip.id,
+        location: trip.tripData?.location || 'Unnamed',
+        budget: trip.tripData?.budget || '',
+        mood: trip.tripData?.mood || '',
+        duration: trip.tripData?.duration || '',
+      },
+    });
   };
 
   return (
@@ -50,13 +111,45 @@ const MyTrip = () => {
           onChangeText={(text) => setSearchQuery(text)}
         />
 
-        <UserTripsList searchQuery={searchQuery} showAddOptions={showAddOptions} />
+        {loading ? (
+          <ActivityIndicator size="large" color={Colors.primary} />
+        ) : (
+          <>
+            {showAddOptions ? (
+              <>
+                <StartNewTripCard />
+                <StartMoodboardTripCard />
+              </>
+            ) : (
+              <>
+                {filteredTrips.length === 0 ? (
+                  <>
+                    <StartNewTripCard />
+                    <StartMoodboardTripCard />
+                  </>
+                ) : (
+                  filteredTrips.map((trip) => (
+                    <TouchableOpacity key={trip.id} onPress={() => handleTripClick(trip)}>
+                      <View style={styles.tripCard}>
+                        <Text style={styles.tripName}>
+                          {trip.tripData?.location || 'Unnamed'} Trip
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </>
+            )}
+          </>
+        )}
       </ScrollView>
 
+      {/* Floating Chatbot Button */}
       <TouchableOpacity onPress={openChatbotIntro} style={styles.floatingButton}>
         <Ionicons name="chatbubble-ellipses" size={30} color="white" />
       </TouchableOpacity>
 
+      {/* Modal for HUMsafar Chat Intro */}
       {showChatIntro && (
         <Modal transparent animationType="fade" onRequestClose={() => setShowChatIntro(false)}>
           <View style={styles.modalOverlay}>
@@ -95,6 +188,17 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
   },
+  tripCard: {
+    backgroundColor: '#f56c97',
+    padding: 20,
+    borderRadius: 15,
+    marginVertical: 10,
+  },
+  tripName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
   searchBar: {
     height: 40,
     borderColor: 'gray',
@@ -123,7 +227,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: '80%',
-    alignItems: 'center',
   },
   modalTitle: {
     fontSize: 24,
@@ -133,7 +236,6 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 16,
     marginBottom: 10,
-    textAlign: 'center',
   },
   modalButton: {
     backgroundColor: '#ff5c8d',
