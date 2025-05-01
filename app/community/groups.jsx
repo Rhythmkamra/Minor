@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#FFC0CB',
+    color: '#ff5c8d',
   },
   searchInput: {
     height: 45,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   createGroupButton: {
-    backgroundColor: '#FFC0CB',
+    backgroundColor: '#ff5c8d',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -8,11 +8,22 @@ const Dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Safar Community</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title1}>Discover</Text>
+       
+        <Image
+          source={require('../../assets/images/logo2.png')}
+          style={styles.logo}
+        />
+        
+
+    
+      </View>
+      <Text style={styles.title2}>Safar Community</Text>
       <Text style={styles.subtitle}>Connect, explore and share your journey</Text>
 
       <ScrollView contentContainerStyle={styles.cardContainer} showsVerticalScrollIndicator={false}>
-      <Card
+        <Card
           title="Let's Connect"
           icon="account-plus"
           onPress={() => router.push('/community/requests')}
@@ -22,8 +33,8 @@ const Dashboard = () => {
           icon="account-group"
           onPress={() => router.push('/community/groups')}
         />
-        
-         <Card
+
+        <Card
           title="My Connections"
           icon="account-multiple"
           onPress={() => router.push('/community/connections')}
@@ -45,15 +56,33 @@ const Card = ({ title, icon, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'light grey',
-    paddingTop: 60,
+    backgroundColor: 'white',
+    paddingTop: 20,
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#687076',
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  title1: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: 'black',
     textAlign: 'center',
+    flex: 1,
+    marginRight: 10,
+    
+  },
+  title2: {
+    fontSize: 34,
+    fontWeight: '600',
+    color: 'black',
+    textAlign: 'center',
+    flex: 1,
+    marginRight: 10,
+    marginTop: -10,
   },
   subtitle: {
     fontSize: 16,
@@ -67,7 +96,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: '#FFC0CB',
+    backgroundColor: '#ff5c8d',
     width: '90%',
     borderRadius: 20,
     paddingVertical: 25,
@@ -93,6 +122,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     letterSpacing: 0.5,
   },
+  logo: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    top: 0,
+      right: -11,
+  },
+
 });
 
 export default Dashboard;

@@ -1,14 +1,15 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Connections from './connections';  // Correct path
-import Chat from './chat';  // Correct path
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import ConnectionsScreen from './connections';
+import ChatScreen from './chat';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const CommunityNavigator = () => {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Connections" component={Connections} />
-      <Stack.Screen name="Chat" component={Chat} />  {/* Ensure 'Chat' is correctly registered */}
+    <Stack.Navigator screenOptions={{ headerShown: true }}>
+      <Stack.Screen name="connections" component={ConnectionsScreen} />
+      <Stack.Screen name="chat" component={ChatScreen} />
     </Stack.Navigator>
   );
 };
