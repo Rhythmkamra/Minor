@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, TextInput, Platform } from 'react-native';
 
 const Groups = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -45,6 +45,7 @@ const Groups = () => {
         placeholder="Search Groups"
         value={searchQuery}
         onChangeText={handleSearchGroups}
+        placeholderTextColor="#999"
       />
 
       {/* New Companions section with filtered groups */}
@@ -140,22 +141,23 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: 10,
-    fontSize: 18,
+    fontSize: 16,
     color: '#888',
   },
   suggestionTitle: {
     marginTop: 20,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#FFC0CB',
+    color: '#ff5c8d',
   },
   searchInput: {
-    height: 40,
+    height: 45,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    marginVertical: 15,
+    backgroundColor: '#f9f9f9',
   },
   suggestedGroupsContainer: {
     marginTop: 10,
@@ -163,18 +165,19 @@ const styles = StyleSheet.create({
   },
   suggestedGroupCard: {
     backgroundColor: '#f7f7f7',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 12,
     shadowColor: '#ccc',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
   },
   suggestedGroup: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#555',
+    fontWeight: '600',
   },
   groupType: {
     fontSize: 14,
@@ -182,26 +185,36 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   actionsContainer: {
-    marginTop: 20,
+    marginTop: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   createGroupButton: {
-    backgroundColor: '#FFC0CB',
+    backgroundColor: '#ff5c8d',
     paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    paddingHorizontal: 20,
+    borderRadius: 25,
     flex: 1,
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 15,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
   },
   joinGroupButton: {
     backgroundColor: '#687076',
     paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    paddingHorizontal: 20,
+    borderRadius: 25,
     flex: 1,
     alignItems: 'center',
+    shadowColor: '#ccc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
   },
   buttonText: {
     color: '#fff',
@@ -212,50 +225,56 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 8,
+    padding: 25,
+    borderRadius: 12,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#687076',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   input: {
-    height: 40,
+    height: 50,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+    fontSize: 16,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#687076',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   groupTypeSelector: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   typeButton: {
     backgroundColor: '#f7f7f7',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    margin: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 30,
+    margin: 8,
   },
   selectedType: {
     backgroundColor: '#FFC0CB',
   },
   typeButtonText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#687076',
   },
   modalActions: {
@@ -264,12 +283,12 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     backgroundColor: '#FFC0CB',
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    borderRadius: 25,
     flex: 1,
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 15,
   },
 });
 

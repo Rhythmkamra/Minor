@@ -281,6 +281,7 @@ const Requests = () => {
 };
 
 const styles = StyleSheet.create({
+
   container: { flex: 1, padding: 20, backgroundColor: '#f4f4f4' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
   sectionContainer: { marginBottom: 20 },
@@ -303,6 +304,7 @@ const styles = StyleSheet.create({
   suggestionItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, backgroundColor: '#fff', padding: 10, borderRadius: 10, elevation: 3 },
   profilePic: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#ccc' },
   connectButton: { backgroundColor: '#FFC0CB', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 5 },
+
 });
 
 export default Requests;

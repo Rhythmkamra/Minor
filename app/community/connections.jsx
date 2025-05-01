@@ -1,32 +1,47 @@
+// app/community/Connections.jsx
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { db } from '../../configs/FirebaseConfigs'; // Import Firestore
+import { useEffect, useState, useLayoutEffect } from 'react';
+import { useNavigation, useRouter } from 'expo-router'; // Import useRouter
+import { db } from '../../configs/FirebaseConfigs';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const Connections = () => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
+  // const navigation = useNavigation(); // Remove useNavigation
+  const router = useRouter(); // Use useRouter from expo-router
   const auth = getAuth();
   const currentUser = auth.currentUser;
+
+  useLayoutEffect(() => {
+    // You might not need headerLeft like this with Expo Router's Stack
+    // If you do, ensure it's within the CommunityNavigator's Stack.Screen options
+    // navigation.setOptions({
+    //   headerLeft: () => (
+    //     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+    //       <FontAwesome5 name="arrow-left" size={24} color="#687076" />
+    //     </TouchableOpacity>
+    //   ),
+    //   headerStyle: { backgroundColor: '#F0F2F5' },
+    //   headerTitleStyle: { fontSize: 20, fontWeight: '600', color: '#2C3E50' },
+    // });
+  }, [router]); // Use router in the dependency array if needed
 
   useEffect(() => {
     const fetchConnections = async () => {
       if (!currentUser) return;
 
       try {
-        // Fetch the accepted requests for the current user
         const acceptedRequestsRef = collection(db, 'Users', currentUser.uid, 'requests');
         const querySnapshot = await getDocs(query(acceptedRequestsRef, where('status', '==', 'accepted')));
-        
+
         const acceptedConnections = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         }));
-        
+
         setConnections(acceptedConnections);
         setLoading(false);
       } catch (error) {
@@ -39,7 +54,7 @@ const Connections = () => {
   }, [currentUser]);
 
   const handlePress = (connection) => {
-    navigation.navigate('Chat', { connection });
+    router.push({ pathname: '/community/chat', params: { name: connection.fromName || 'Unknown User' } }); // Use router.push
   };
 
   const renderConnection = ({ item }) => (
@@ -84,8 +99,8 @@ const Connections = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingHorizontal: 10,
     backgroundColor: '#F0F2F5',
   },
   title: {
@@ -97,23 +112,26 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderRadius: 15,
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    borderRadius: 12,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    marginHorizontal: 5,
+    width: '100%',
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
   },
   connectionName: {
-    fontSize: 20,
-    marginLeft: 15,
+    fontSize: 18,
+    marginLeft: 12,
     color: '#2C3E50',
     fontWeight: '600',
   },
@@ -140,6 +158,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+  },
+  backButton: {
+    marginLeft: 10,
   },
 });
 
