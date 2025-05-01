@@ -1,148 +1,139 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { fetchLocationImage } from '../../utils/unsplashAPI';
 
-const PlannedTrip = ({ details, placesToVisit }) => {
-  // If details are empty, render a message
+const PlannedTrip = ({ details }) => {
+  const [images, setImages] = useState({});
+
+  useEffect(() => {
+    const loadImages = async () => {
+      let newImages = {};
+      for (const day of details || []) {
+        if (day?.places_to_visit) {
+          for (const place of day.places_to_visit) {
+            if (!newImages[place.name]) {
+              const img = await fetchLocationImage(place.name);
+              newImages[place.name] = img;
+            }
+          }
+        }
+      }
+      setImages(newImages);
+    };
+
+    loadImages();
+  }, [details]);
+
   if (!details || details.length === 0) {
     return <Text style={styles.noItinerary}>No itinerary available for this trip.</Text>;
   }
 
   return (
-    <View style={styles.container}>
-      {/* Render itinerary details */}
+    <ScrollView style={styles.container}>
       {details.map((day, dayIndex) => (
         <View key={`day-${dayIndex}`} style={styles.dayContainer}>
           <Text style={styles.dayTitle}>Day {dayIndex + 1}</Text>
 
-          {/* Check if activities exists and is an array */}
+          {/* Activities */}
           {Array.isArray(day.activities) ? (
-            day.activities.map((activity, activityIndex) => {
-              if (typeof activity === 'object' && activity !== null) {
-                return (
-                  <Text key={`activity-${dayIndex}-${activityIndex}`} style={styles.dayDetails}>
-                    - {activity.name || JSON.stringify(activity)} 
-                    {activity.time && <Text style={styles.activityTime}> ({activity.time})</Text>}
-                  </Text>
-                );
-              } else {
-                return (
-                  <Text key={`activity-${dayIndex}-${activityIndex}`} style={styles.dayDetails}>
-                    - {activity}
-                  </Text>
-                );
-              }
-            })
+            day.activities.map((activity, activityIndex) => (
+              <Text key={`activity-${activityIndex}`} style={styles.dayDetails}>
+                - {activity.name} {activity.time && <Text style={styles.time}>({activity.time})</Text>}
+              </Text>
+            ))
           ) : (
+            <Text style={styles.dayDetails}>No specific activities listed.</Text>
+          )}
+
+          {/* Optional fields */}
+          {day.location && <Text style={styles.dayDetails}>📍 Location: {day.location}</Text>}
+          {day.notes && <Text style={styles.dayDetails}>📝 Notes: {day.notes}</Text>}
+          {day.otherDetails && (
             <Text style={styles.dayDetails}>
-              {typeof day.activities === 'string' ? day.activities : 'No specific activities listed.'}
+              🧾 Other: {typeof day.otherDetails === 'object'
+                ? JSON.stringify(day.otherDetails)
+                : day.otherDetails}
             </Text>
           )}
 
-          {/* Handle other possible fields like location, notes */}
-          {day.location && <Text style={styles.dayDetails}>Location: {day.location}</Text>}
-          {day.notes && <Text style={styles.dayDetails}>Notes: {day.notes}</Text>}
-          
-          {day?.otherDetails && (
-            <Text style={styles.dayDetails}>
-              Other: {typeof day.otherDetails === 'object' ? JSON.stringify(day.otherDetails) : day.otherDetails}
-            </Text>
-          )}
-        </View>
-      ))}
-
-      {/* Render places to visit */}
-      {placesToVisit && placesToVisit.length > 0 && (
-        <View style={styles.placesContainer}>
-          <Text style={styles.placesTitle}>Places to Visit</Text>
-          {placesToVisit.map((place, index) => (
-            <View key={`place-${index}`} style={styles.placeCard}>
-              {place.image_url && (
-                <Image source={{ uri: place.image_url }} style={styles.placeImage} />
+          {/* Places to Visit */}
+          {day?.places_to_visit?.map((place, placeIndex) => (
+            <View key={`place-${placeIndex}`} style={styles.placeCard}>
+              <Text style={styles.placeTitle}>{place.name}</Text>
+              {images[place.name] && (
+                <Image source={{ uri: images[place.name] }} style={styles.placeImage} />
               )}
-              <Text style={styles.placeName}>{place.name}</Text>
               <Text style={styles.placeDetails}>{place.details}</Text>
-              <Text style={styles.placeInfo}>Ticket Pricing: {place.ticket_pricing}</Text>
-              <Text style={styles.placeInfo}>Time to Travel: {place.time_to_travel}</Text>
-              <Text style={styles.placeInfo}>Coordinates: {place.geo_coordinates}</Text>
+              <Text style={styles.placeDetails}>🕒 Travel Time: {place.time_to_travel}</Text>
+              <Text style={styles.placeDetails}>🎫 Ticket: {place.ticket_pricing}</Text>
+              <Text style={styles.placeDetails}>📍 Coords: {place.geo_coordinates}</Text>
             </View>
           ))}
         </View>
-      )}
-    </View>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+    backgroundColor: '#fff',
   },
   dayContainer: {
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginBottom: 20,
     paddingBottom: 10,
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
   },
   dayTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 6,
+    color: '#333',
   },
   dayDetails: {
     fontSize: 16,
-    color: 'gray',
-    marginLeft: 10,
-    marginBottom: 3,
-  },
-  activityTime: {
-    fontSize: 14,
     color: '#555',
+    marginLeft: 10,
+    marginBottom: 4,
+  },
+  time: {
+    fontSize: 14,
+    color: '#888',
+  },
+  placeCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.3,
+    elevation: 2,
+  },
+  placeTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#222',
+  },
+  placeImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  placeDetails: {
+    fontSize: 15,
+    color: '#555',
+    marginBottom: 4,
   },
   noItinerary: {
     fontSize: 16,
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-  },
-  placesContainer: {
-    marginTop: 20,
-  },
-  placesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  placeCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  placeImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  placeName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  placeDetails: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 8,
-  },
-  placeInfo: {
-    fontSize: 14,
-    color: '#777',
-    marginBottom: 3,
   },
 });
 

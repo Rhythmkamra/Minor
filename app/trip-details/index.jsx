@@ -8,14 +8,14 @@ import { db } from '../../configs/FirebaseConfigs';
 import FlightInfo from '../../components/TripDetails/FlightInfo';
 import HotelList from '../../components/TripDetails/HotelList';
 import PlannedTrip from '../../components/TripDetails/PlannedTrip';
+import { fetchLocationImage } from '../../utils/unsplashAPI'; // ✅ import here
 
 const Index = () => {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const [tripDetails, setTripDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY;
+  const [locationImage, setLocationImage] = useState(null); // ✅ state for image
 
   useEffect(() => {
     navigation.setOptions({
@@ -29,7 +29,12 @@ const Index = () => {
         const docRef = doc(db, 'UserTrip', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setTripDetails({ id: docSnap.id, ...docSnap.data() });
+          const data = { id: docSnap.id, ...docSnap.data() };
+          setTripDetails(data);
+
+          // ✅ fetch Unsplash image based on location
+          const image = await fetchLocationImage(data.tripData?.location);
+          if (image) setLocationImage(image);
         } else {
           console.warn('Trip not found');
         }
@@ -45,7 +50,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
@@ -55,28 +60,24 @@ const Index = () => {
 
   const tripData = tripDetails.tripData || {};
   const tripPlan = tripDetails.tripPlan?.trip || {};
-  const photoRef = tripData?.locationInfo?.photoRef;
-
-  const imageUrl = photoRef && apiKey
-    ? `https://maps.googleapis.com/maps/api/place/photo?maxheight=400&photoreference=${photoRef}&key=${apiKey}`
-    : null;
 
   return (
     <ScrollView>
-      {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+      {locationImage ? (
+        <Image source={{ uri: locationImage }} style={styles.image} />
       ) : (
         <Image source={require('../../assets/images/plane.gif')} style={styles.image} />
       )}
+
       <View style={styles.container}>
         <Text style={styles.title}>{tripData?.location || 'Trip Details'}</Text>
         <View style={styles.flexBox}>
-          <Text style={styles.smallPara}>{moment(tripData?.startDate).format('DD MMM YYYY')}</Text>
-          <Text style={styles.smallPara}> - {moment(tripData?.endDate).format('DD MMM YYYY')}</Text>
+          <Text style={styles.dateText}>{moment(tripData?.startDate).format('DD MMM YYYY')}</Text>
+          <Text style={styles.dateText}> - {moment(tripData?.endDate).format('DD MMM YYYY')}</Text>
         </View>
-        <Text style={styles.smallPara}>👨‍👩‍👧‍👦 Travelers: {tripData?.traveler?.title}</Text>
-        <Text style={styles.smallPara}>🧳 Budget: {tripPlan?.budget}</Text>
-        <Text style={styles.smallPara}>🎭 Mood: {tripPlan?.mood}</Text>
+        <Text style={styles.infoText}>👨‍👩‍👧‍👦 Travelers: {tripData?.travelers || 'N/A'}</Text>
+        <Text style={styles.infoText}>🎭 Mood: {tripData?.moodboard || 'N/A'}</Text>
+        <Text style={styles.infoText}>💸 Budget: {tripPlan?.budget || 'N/A'}</Text>
 
         <FlightInfo flightData={tripPlan.flights} />
         <HotelList hotelList={tripPlan.hotels} />
@@ -89,6 +90,11 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   image: {
     width: '100%',
     height: 330,
@@ -104,16 +110,22 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Outfit-Bold',
     fontSize: 25,
+    marginTop:20,
   },
-  smallPara: {
+  dateText: {
     fontFamily: 'Outfit',
     fontSize: 18,
     color: Colors.gray,
-    marginTop: 5,
+  },
+  infoText: {
+    fontFamily: 'Outfit',
+    fontSize: 18,
+    color: Colors.gray,
+    marginTop: 6,
   },
   flexBox: {
     flexDirection: 'row',
     gap: 5,
-    marginTop: 5,
+    marginTop: 6,
   },
 });
