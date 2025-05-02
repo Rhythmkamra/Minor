@@ -526,39 +526,38 @@ const tabStyles = StyleSheet.create({
   tabContainer: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#fafafa', // Light background for content area
+    backgroundColor: '#fafafa',
+    
   },
   tabBar: {
-    backgroundColor: '#ffffff', // White tab bar background
-    borderBottomWidth: 1,       // Subtle border bottom
+    backgroundColor: '#e072a6',
+    borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1.5,
-    elevation: 3,    
-               // Elevation for Android shadow
+    elevation: 3,
   },
   indicator: {
-    backgroundColor: primaryColor, // Pink indicator line
+    backgroundColor: primaryColor,
     height: 3,
   },
   tabLabel: {
     fontSize: 15,
-    fontWeight: '600', // Semi-bold labels
-    textTransform: 'capitalize', // Capitalize tab titles
+    fontWeight: '600',
+    textTransform: 'capitalize',
     marginVertical: 10,
     textAlign: 'center',
+    color: primaryColor, // Make the default label color pink
   },
   sectionTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#333',
+    color: 'pink',
     marginBottom: 12,
-    marginTop: 10, // Add some top margin to section titles
-  
+    marginTop: 10,
   },
-  // Send Request Styles
   sendRequestContainer: {
     marginBottom: 15,
     paddingBottom: 15,
@@ -575,68 +574,67 @@ const tabStyles = StyleSheet.create({
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 12, // Increased padding
+    paddingHorizontal: 12,
     fontSize: 16,
-    backgroundColor: '#fff', // White input background
+    backgroundColor: '#fff',
   },
   sendButton: {
     backgroundColor: primaryColor,
-    paddingHorizontal: 18, // Adjusted padding
-    height: 45, // Match input height
-    justifyContent: 'center', // Center text vertically
+    paddingHorizontal: 18,
+    height: 45,
+    justifyContent: 'center',
     borderRadius: 8,
     marginLeft: 10,
   },
   disabledButton: {
-    backgroundColor: '#ffc1e3', // Lighter pink when disabled
+    backgroundColor: '#ffc1e3',
   },
   sendButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
   },
-  // Suggestion Styles
   suggestedContainer: {
-     marginTop: 15,
+    marginTop: 15,
   },
   suggestionItem: {
     flexDirection: 'row',
-    paddingVertical: 12, // Adjusted padding
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee', // Lighter border
+    borderBottomColor: '#eee',
     alignItems: 'center',
-    backgroundColor: '#fff', // White background for items
-    borderRadius: 8,        // Rounded corners
-    marginBottom: 8,       // Space between items
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 8,
   },
   profilePicSmall: {
-    width: 40,              // Standardized size
+    width: 40,
     height: 40,
-    borderRadius: 20,       // Circular
+    borderRadius: 20,
   },
   userIconContainerSmall: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f0f0', // Placeholder background
+    backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
   },
   suggestionUsername: {
-    fontWeight: '600', // Semi-bold username
+    fontWeight: '600',
     fontSize: 15,
-    color: '#262626', // Darker text color
+    color: '#262626',
   },
   suggestionBio: {
     fontSize: 13,
-    color: '#777', // Grey color for bio
+    color: '#777',
     marginTop: 2,
   },
   connectButton: {
     backgroundColor: primaryColor,
-    paddingHorizontal: 12, // Adjusted padding
-    paddingVertical: 6,   // Adjusted padding
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 6,
   },
   connectButtonText: {
@@ -644,52 +642,50 @@ const tabStyles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 13,
   },
-  // Generic Styles (No Requests, Accepted Status)
   noRequests: {
     fontSize: 15,
     color: '#aaa',
     textAlign: 'center',
-    marginTop: 40, // More margin top
+    marginTop: 40,
     fontStyle: 'italic',
   },
   acceptedContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end', // Align to the right
+    justifyContent: 'flex-end',
     marginTop: 8,
-    paddingRight: 5, // Add some padding
+    paddingRight: 5,
   },
   acceptedText: {
     marginLeft: 6,
     fontSize: 14,
-    fontWeight: '600', // Make accepted text semi-bold
-    color: '#4CAF50', // Green color for accepted status
+    fontWeight: '600',
+    color: '#4CAF50',
   },
-  // RequestItem Styles
   requestItem: {
     backgroundColor: '#fff',
     padding: 15,
     marginBottom: 10,
-    borderRadius: 10, // More rounded corners
+    borderRadius: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.08, // Softer shadow
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 2, // Softer elevation
-    borderWidth: 1, // Optional subtle border
+    elevation: 2,
+    borderWidth: 1,
     borderColor: '#f0f0f0',
   },
   requestHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5, // Less margin below header
+    marginBottom: 5,
   },
   profilePic: {
-    width: 45,      // Standardized size
+    width: 45,
     height: 45,
-    borderRadius: 22.5, // Circular
+    borderRadius: 22.5,
   },
-  userIconContainer: { // Used when no profilePic available
+  userIconContainer: {
     width: 45,
     height: 45,
     borderRadius: 22.5,
@@ -700,45 +696,44 @@ const tabStyles = StyleSheet.create({
   requestName: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#262626', // Darker name color
+    color: '#262626',
   },
   requestBio: {
     fontSize: 14,
-    color: '#777', // Grey bio color
+    color: '#777',
     marginTop: 3,
   },
   timestamp: {
-    fontSize: 11, // Smaller timestamp
+    fontSize: 11,
     color: '#aaa',
-    marginTop: 8, // More space above timestamp
-    marginBottom: 8, // Space below timestamp
-    alignSelf: 'flex-start', // Align timestamp left
+    marginTop: 8,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   buttonGroup: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Align buttons to the right
-    marginTop: 5, // Space above buttons
+    justifyContent: 'flex-end',
+    marginTop: 5,
   },
   acceptButton: {
-    backgroundColor: '#4CAF50', // Green accept button
-    padding: 10, // Circular padding
-    borderRadius: 20, // Make buttons circular
-    marginLeft: 10, // Space between buttons
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 20,
+    marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40, // Fixed size
+    width: 40,
     height: 40,
   },
   declineButton: {
-    backgroundColor: '#FF1744', // Red decline button
+    backgroundColor: '#FF1744',
     padding: 10,
-    borderRadius: 20, // Circular
-    marginLeft: 10, // Space from accept button if both shown (not usually)
+    borderRadius: 20,
+    marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
     width: 40,
     height: 40,
   },
 });
-
 export default Requests;
