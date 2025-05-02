@@ -1,20 +1,39 @@
 // app/community/Chat.jsx
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { FontAwesome5 } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { collection, addDoc, onSnapshot, orderBy, query, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../configs/FirebaseConfigs';// Make sure your Firebase config is correct
+import { getAuth } from 'firebase/auth';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F0F2F5' },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    padding: 20,
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  usernameText: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#2C3E50',
+  },
+  bioText: {
+    fontSize: 14,
+    color: '#555',
+    paddingHorizontal: 15,
+    paddingBottom: 10,
   },
   messagesContainer: { flexGrow: 1, padding: 20, justifyContent: 'flex-end' },
   messageBubble: {
@@ -49,56 +68,97 @@ const styles = StyleSheet.create({
   },
 });
 
-const Chat = () => {
-  const { name } = useLocalSearchParams();
-  const chatKey = `chatMessages-${name}`; // Unique key for each chat
+const getChatId = (uid1, uid2) => {
+  return [uid1, uid2].sort().join('_');
+};
 
+const Chat = () => {
+  const { currentUserId, selectedUserId, name } = useLocalSearchParams(); // Receive 'name'
+  console.log('currentUserId in Chat screen:', currentUserId); // Add this log
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [userData, setUserData] = useState(null);
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
-    // Load messages when the component mounts
-    loadMessages();
-  }, []);
-
-  const loadMessages = async () => {
-    try {
-      const storedMessages = await AsyncStorage.getItem(chatKey);
-      if (storedMessages) {
-        setMessages(JSON.parse(storedMessages));
+    const fetchUserData = async () => {
+      if (selectedUserId) {
+        try {
+          const userDoc = await getDoc(doc(db, 'Users', selectedUserId));
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
       }
-    } catch (error) {
-      console.error('Failed to load messages:', error);
-    }
-  };
+    };
 
-  const saveMessages = async (newMessages) => {
+    fetchUserData();
+  }, [selectedUserId]);
+
+  useEffect(() => {
+    const chatId = getChatId(currentUserId, selectedUserId);
+    const messagesRef = collection(db, 'chats', chatId, 'messages');
+    const q = query(messagesRef, orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  }, [currentUserId, selectedUserId]);
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const chatId = getChatId(currentUserId, selectedUserId);
+    const messagesRef = collection(db, 'chats', chatId, 'messages');
+
     try {
-      await AsyncStorage.setItem(chatKey, JSON.stringify(newMessages));
-    } catch (error) {
-      console.error('Failed to save messages:', error);
-    }
-  };
-
-  const sendMessage = () => {
-    if (input.trim()) {
-      const newMessage = { id: Date.now().toString(), text: input };
-      const updatedMessages = [newMessage, ...messages];
-      setMessages(updatedMessages);
-      saveMessages(updatedMessages); // Save messages after sending
+      await addDoc(messagesRef, {
+        text: input,
+        sender: currentUserId,
+        receiver: selectedUserId,
+        createdAt: new Date(),
+      });
       setInput('');
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
   };
 
-  const renderMessage = ({ item }) => (
-    <View style={styles.messageBubble}>
-      <Text style={styles.messageText}>{item.text}</Text>
-    </View>
-  );
+  const renderMessage = ({ item }) => {
+    const isMyMessage = item.sender === currentUserId;
+    return (
+      <View
+        style={[
+          styles.messageBubble,
+          {
+            alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
+            backgroundColor: isMyMessage ? '#DCF8C6' : '#FFFFFF',
+          },
+        ]}
+      >
+        <Text style={styles.messageText}>{item.text}</Text>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Chat with {name}</Text>
+      <View>
+        <View style={styles.headerContainer}>
+          {userData?.profilePicture && (
+            <Image source={{ uri: userData.profilePicture }} style={styles.profileImage} />
+          )}
+          <Text style={styles.usernameText}>{userData?.username || name || 'User'}</Text>
+        </View>
+        {userData?.bio && <Text style={styles.bioText}>{userData.bio}</Text>}
+      </View>
+
       <FlatList
         data={messages}
         renderItem={renderMessage}
@@ -106,6 +166,7 @@ const Chat = () => {
         contentContainerStyle={styles.messagesContainer}
         inverted
       />
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}

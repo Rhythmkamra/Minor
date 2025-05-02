@@ -54,7 +54,14 @@ const Connections = () => {
   }, [currentUser]);
 
   const handlePress = (connection) => {
-    router.push({ pathname: '/community/chat', params: { name: connection.fromName || 'Unknown User' } }); // Use router.push
+    router.push({
+      pathname: '/community/chat',
+      params: {
+        currentUserId: currentUser.uid, // VERY IMPORTANT: Ensure currentUser.uid is the logged-in user's ID
+        selectedUserId: connection.fromUserId, // The ID of the user you are chatting with
+        name: connection.fromName || 'Unknown User',
+      },
+    });
   };
 
   const renderConnection = ({ item }) => (
